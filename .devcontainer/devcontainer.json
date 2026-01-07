@@ -175,7 +175,7 @@
   // LIFECYCLE SCRIPTS
   // =============================================================================
   // Execute firewall IMMEDIATELY after container starts (before any network access)
-  "postStartCommand": "sudo /usr/local/bin/init-firewall.sh",
+  "postStartCommand": "sudo -n /usr/local/bin/init-firewall.sh",
   
   // Smart dependency detection and installation
   "postCreateCommand": "bash .devcontainer/scripts/post-create.sh",

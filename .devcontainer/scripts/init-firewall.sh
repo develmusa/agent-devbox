@@ -11,7 +11,68 @@
 set -euo pipefail  # Exit on error, undefined vars, pipeline failures
 IFS=$'\n\t'        # Stricter word splitting
 
-echo "🔒 Initializing  Network Security Boundary..."
+echo "🔒 Initializing Network Security Boundary..."
+
+# =============================================================================
+# STEP 0: Environment Detection (Rootless/Podman compatibility check)
+# =============================================================================
+# Check if we can use iptables with ipset module (requires full kernel access)
+# In rootless containers (podman), this will fail - we gracefully skip firewall
+
+# Test 1: Check if ipset is accessible
+if ! ipset list >/dev/null 2>&1; then
+    echo ""
+    echo "⚠️  WARNING: Running in rootless/restricted environment"
+    echo "   - ipset kernel module not accessible"
+    echo "   - Network firewall DISABLED (cannot enforce egress filtering)"
+    echo ""
+    echo "📋 Security Implications:"
+    echo "   - AI agents can access any network endpoint"
+    echo "   - Data exfiltration protection NOT ACTIVE"
+    echo "   - Container isolation still provides some protection"
+    echo ""
+    echo "💡 To enable full firewall security:"
+    echo "   - Use Docker Desktop or Docker Engine (not podman)"
+    echo "   - Ensure container has NET_ADMIN capability"
+    echo "   - Run container with sufficient privileges"
+    echo ""
+    echo "✅ Container startup continuing without firewall..."
+    echo ""
+    exit 0  # Exit successfully to allow container to start
+fi
+
+# Test 2: Create temporary ipset and test iptables integration
+ipset create firewall-test hash:net 2>/dev/null || true
+if ! iptables -C OUTPUT -m set --match-set firewall-test dst -j ACCEPT 2>/dev/null; then
+    # Test failed - try to add the rule and immediately delete it
+    if ! iptables -A OUTPUT -m set --match-set firewall-test dst -j ACCEPT 2>/dev/null; then
+        # Cleanup
+        ipset destroy firewall-test 2>/dev/null || true
+        
+        echo ""
+        echo "⚠️  WARNING: iptables set module not available"
+        echo "   - Running in limited networking environment (likely podman/rootless)"
+        echo "   - Network firewall DISABLED (iptables set module not functional)"
+        echo ""
+        echo "📋 Security Implications:"
+        echo "   - AI agents can access any network endpoint"
+        echo "   - Data exfiltration protection NOT ACTIVE"
+        echo "   - Container isolation still provides some protection"
+        echo ""
+        echo "💡 To enable full firewall security:"
+        echo "   - Use Docker Desktop or Docker Engine (not podman)"
+        echo "   - Run with full privileges (not rootless mode)"
+        echo ""
+        echo "✅ Container startup continuing without firewall..."
+        echo ""
+        exit 0  # Exit successfully to allow container to start
+    fi
+    # Cleanup test rule
+    iptables -D OUTPUT -m set --match-set firewall-test dst -j ACCEPT 2>/dev/null || true
+fi
+ipset destroy firewall-test 2>/dev/null || true
+
+echo "✓ Full firewall support detected (iptables + ipset available)"
 
 # =============================================================================
 # STEP 1: Preserve Docker Internal DNS (Critical for container networking)

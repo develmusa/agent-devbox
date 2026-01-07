@@ -1,377 +1,251 @@
-# agent-devbox - Secure AI Coding Environment
+# agent-devbox
 
-A security-hardened development container optimized for AI coding agents like OpenCode. This configuration implements industry best practices for containerized development while maintaining the ergonomics of your local environment.
+Security-hardened DevContainer for AI coding agents. Implements defense-in-depth architecture with network egress filtering, SSH agent forwarding, and resource limits.
 
-## 🎯 Key Features
+**Repository:** https://github.com/develmusa/agent-devbox
 
-### 🔒 Security Architecture ()
+---
 
-- **Network Egress Filtering**: Iptables-based firewall blocks unauthorized network access (IPv4 + IPv6)
-- **SSH Agent Forwarding**: Private keys never enter the container (gold standard)
-- **Non-Root Execution**: Agent runs as `node` user (UID 1000)
-- **Resource Limits**: Memory (4GB), CPU (2 cores), and process limits prevent DoS attacks
-- **Audit Logging**: All blocked connection attempts are logged for security review
-- **Minimal Attack Surface**: Slim base image (~350MB) with only essential tools
-- **State Isolation**: Agent config stored in Docker volumes, not host filesystem
+## Features
 
-### 🚀 Agent-Optimized
+**Security:**
+- Network egress filtering (IPv4/IPv6 iptables firewall)
+- SSH agent forwarding (private keys never copied)
+- Non-root execution (UID 1000)
+- Resource limits (4GB RAM, 2 CPU, 512 processes)
+- Audit logging (all blocked connections logged)
 
-- **OpenCode Pre-installed**: Ready to use immediately
-- **Fast Code Search**: ripgrep and fd-find for efficient context gathering
-- **Smart Dependencies**: Auto-detects and installs only what your project needs
-- **Minimal Friction**: Pre-configured for "vibe coding" workflows
+**Development:**
+- OpenCode pre-installed
+- Fast code search (ripgrep, fd-find)
+- Auto-detects dependencies (npm, pip, cargo, go mod)
+- Multi-language support (Node.js, Python, Go, Rust)
 
-### 🎨 Generic & Modular
+---
 
-- **Multi-Language Ready**: Commented sections for Python, Go, Rust (uncomment as needed)
-- **Package Manager Agnostic**: Supports npm, pnpm, yarn, bun, pip, poetry, cargo, go mod
-- **Minimal Extensions**: Only 2 installed (GitLens, ErrorLens) with clear examples for more
+## Quick Start
 
-## 📋 Quick Start
+**Prerequisites:**
+- Docker Desktop or Docker Engine
+- VS Code with Dev Containers extension
+- SSH agent running on host
 
-### Prerequisites
+**Setup:**
+1. Open project in VS Code
+2. `F1` → **Dev Containers: Reopen in Container**
+3. Wait for build (3-5 minutes first time)
 
-- **Docker Desktop** (Mac/Windows) or **Docker Engine** (Linux)
-- **VS Code** with "Dev Containers" extension
-- **SSH Agent** running on host:
-  - **Mac/Linux**: Usually enabled by default. Verify: `ssh-add -l`
-  - **Windows**: Start "OpenSSH Authentication Agent" service (`services.msc`)
+---
 
-### Open Container
+## Customization
 
-1. Open this project in VS Code
-2. Press `F1` → **"Dev Containers: Reopen in Container"**
-3. Wait 3-5 minutes for initial build (subsequent starts take ~30 seconds)
-4. You're now in a secure, isolated development environment!
+### Add Language Support
 
-## 🔧 Customization
+Edit `Dockerfile` and uncomment language sections:
 
-### Adding Language Support
-
-**Uncomment relevant sections in `.devcontainer/Dockerfile`:**
-
-#### Python
 ```dockerfile
-# === Uncomment for Python ===
-RUN apt-get update && apt-get install -y python3 python3-pip python3-venv \
-    && pip3 install --no-cache-dir uv ruff black mypy pytest
-```
+# Python
+RUN apt-get update && apt-get install -y python3 python3-pip python3-venv
 
-#### Go
-```dockerfile
-# === Uncomment for Go ===
+# Go
 COPY --from=golang:1.22 /usr/local/go /usr/local/go
-ENV PATH="/usr/local/go/bin:${PATH}"
-```
 
-#### Rust
-```dockerfile
-# === Uncomment for Rust ===
+# Rust
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-ENV PATH="/home/node/.cargo/bin:${PATH}"
 ```
 
-After uncommenting, rebuild: `F1` → **"Dev Containers: Rebuild Container"**
+Rebuild: `F1` → **Dev Containers: Rebuild Container**
 
-### Adding VS Code Extensions
+### Add VS Code Extensions
 
-Edit `.devcontainer/devcontainer.json`:
+Edit `devcontainer.json`:
 
 ```json
 "extensions": [
   "eamodio.gitlens",
   "usernamehw.errorlens",
-  "your-extension-id-here"  // Add your extensions
+  "your-extension-id"
 ]
 ```
 
-Commented examples are provided for:
-- ESLint (JavaScript linting)
-- Prettier (code formatting)
-- Python language support
-- Go language support
-- Rust Analyzer
+### Whitelist Domains
 
-### Adding Trusted Domains (Firewall)
-
-If your project needs access to additional domains (e.g., private package registry):
-
-**Edit `.devcontainer/scripts/init-firewall.sh`:**
+Edit `scripts/init-firewall.sh`:
 
 ```bash
 ALLOWED_DOMAINS=(
-    # ... existing domains ...
-    "your-private-registry.com"  # Add your domain here
+    # ... existing ...
+    "your-domain.com"
 )
 ```
 
-Then rebuild container.
+### Modify Resource Limits
 
-### Changing Port Forwarding
-
-Edit `.devcontainer/devcontainer.json`:
+Edit `devcontainer.json`:
 
 ```json
-"forwardPorts": [3000, 5000, 8000, 8080, 9000],  // Add/remove ports
+"runArgs": [
+  "--memory=8g",     // Increase RAM
+  "--cpus=4"         // More CPU cores
+]
 ```
 
-## 🛠️ How It Works
+---
+
+## Architecture
 
 ### Security Layers
 
 ```
-┌─────────────────────────────────────────┐
-│         Your Host Machine               │
-│  ┌─────────────────────────────────┐   │
-│  │   DevContainer (Isolated)       │   │
-│  │  ┌──────────────────────────┐   │   │
-│  │  │  OpenCode Agent          │   │   │
-│  │  │  (Non-root: node user)   │   │   │
-│  │  └──────────────────────────┘   │   │
-│  │          ▲         ▲             │   │
-│  │          │         │             │   │
-│  │    ┌─────┴───┐ ┌──┴────────┐    │   │
-│  │    │Firewall │ │SSH Agent  │    │   │
-│  │    │(iptables)│ │Forwarding │    │   │
-│  │    └─────────┘ └───────────┘    │   │
-│  └─────────────────────────────────┘   │
-│              ▲                          │
-│              │ (socket)                 │
-│      ┌───────┴────────┐                │
-│      │ SSH Keys (HOST)│                │
-│      │ ~/.ssh/id_rsa  │                │
-│      └────────────────┘                │
-└─────────────────────────────────────────┘
+Host Machine
+└── DevContainer (isolated)
+    ├── Firewall (iptables) → blocks unauthorized traffic
+    ├── SSH Agent (forwarded) → keys stay on host
+    └── AI Agent (non-root) → limited privileges
 ```
 
-### Network Egress Filtering
+### Network Filtering
 
-The firewall (`init-firewall.sh`) implements **default-deny** with an explicit whitelist:
+**Default-deny firewall with explicit whitelist:**
 
-**✅ Allowed:**
-- GitHub (api.github.com, github.com)
-- AI Providers (api.anthropic.com, api.openai.com, Google Gemini)
-- Package Registries (npm, PyPI, crates.io, Go proxy)
-- VS Code services (marketplace, updates)
+✅ **Allowed:** GitHub, npm, PyPI, crates.io, AI providers (Anthropic, OpenAI, Google)  
+❌ **Blocked:** Everything else
 
-**❌ Blocked:**
-- Everything else (prevents data exfiltration)
-
-**Verification:** On container start, the firewall tests:
-1. ❌ `example.com` should be blocked
-2. ✅ `api.github.com` should be accessible
-3. ✅ `registry.npmjs.org` should be accessible
+Verified on startup:
+- `example.com` → blocked
+- `api.github.com` → allowed
+- `registry.npmjs.org` → allowed
 
 ### Identity Bridging
 
-Your identity is projected into the container **securely**:
+| Component | Method | Security |
+|-----------|--------|----------|
+| SSH Keys | Agent forwarding | Never copied to container |
+| Git Config | Read-only mount | Agent can't modify |
+| Agent State | Docker volume | Isolated from host |
 
-| What | How | Security |
-|------|-----|----------|
-| **SSH Keys** | Agent forwarding (socket) | ✅ Keys never copied |
-| **Git Config** | Read-only bind mount | ✅ Agent can't modify |
-| **OpenCode State** | Docker volume | ✅ Isolated from host |
+### Dependency Detection
 
-### Smart Dependency Detection
+Auto-installs based on project files:
+- `package.json` → npm/pnpm/yarn/bun
+- `requirements.txt` → pip
+- `go.mod` → go modules
+- `Cargo.toml` → cargo
 
-The `post-create.sh` script auto-detects your project type:
+---
 
+## Working with OpenCode
+
+**Run OpenCode:**
 ```bash
-package.json     → installs npm/pnpm/yarn/bun dependencies
-requirements.txt → installs Python packages
-go.mod           → downloads Go modules
-Cargo.toml       → fetches Rust dependencies
-.env.example     → creates .env file
-```
-
-## 🤖 Working with OpenCode
-
-### Running OpenCode
-
-```bash
-# Inside the container terminal
 opencode
 ```
 
-OpenCode is installed globally and ready to use immediately.
-
-### Safe Mode vs Auto Mode
-
-**Because this environment is sandboxed**, you can safely run OpenCode in auto-approve mode:
-
+**Auto-approve mode (safe in container):**
 ```bash
 opencode --dangerously-skip-permissions
 ```
 
-**Why this is safe here:**
-- ✅ Firewall prevents data exfiltration
-- ✅ Container is disposable (easily rebuilt)
-- ✅ Git repo is version-controlled (easy rollback)
-- ✅ Agent runs non-root (limited system access)
+**Why safe:**
+- Firewall prevents exfiltration
+- Container is disposable
+- Non-root execution
+- All changes in git
 
-**Still risky on bare metal!** This flag is only safe because of the container isolation.
+**Best practices:**
+- Commit frequently
+- Review diffs before pushing
+- Use feature branches
+- Monitor firewall logs
 
-### Best Practices
+---
 
-1. **Commit often**: Agent changes are easier to review in small chunks
-2. **Check diffs**: Run `git diff` before accepting agent suggestions
-3. **Use branches**: Let agent work on feature branches, you review PRs
-4. **Monitor network**: Check firewall logs if suspicious activity occurs
-
-## 🐛 Troubleshooting
+## Troubleshooting
 
 ### Container Won't Build
-
 ```bash
-# Clear Docker cache and rebuild
 docker system prune -a
-# In VS Code: F1 → "Dev Containers: Rebuild Container Without Cache"
+# F1 → "Dev Containers: Rebuild Container Without Cache"
 ```
 
-### Firewall Blocking Needed Domain
-
-**Symptom:** Package installation fails with connection timeout
-
-**Solution:**
-1. Identify the domain from error message
-2. Add to `ALLOWED_DOMAINS` in `scripts/init-firewall.sh`
+### Firewall Blocks Needed Domain
+1. Check error message for domain
+2. Add to `scripts/init-firewall.sh` `ALLOWED_DOMAINS`
 3. Rebuild container
 
 ### SSH Agent Not Working
 
 **Mac/Linux:**
 ```bash
-# Check if agent is running
-ssh-add -l
-
-# Start agent if needed
-eval $(ssh-agent)
+ssh-add -l                    # Verify agent
+eval $(ssh-agent)             # Start if needed
 ssh-add ~/.ssh/id_rsa
 ```
 
 **Windows:**
 ```powershell
-# Start OpenSSH Authentication Agent service
-Get-Service ssh-agent | Set-Service -StartupType Automatic
 Start-Service ssh-agent
 ssh-add
 ```
 
 ### File Permission Issues
 
-The container user (`node`) is mapped to your host UID (1000). If you have a different UID:
-
-**Edit `.devcontainer/devcontainer.json`:**
+Edit `devcontainer.json` with your UID/GID:
 ```json
 "build": {
   "args": {
-    "NODE_USER_UID": "YOUR_UID",  // Get with: id -u
-    "NODE_USER_GID": "YOUR_GID"   // Get with: id -g
+    "NODE_USER_UID": "1000",  // id -u
+    "NODE_USER_GID": "1000"   // id -g
   }
 }
 ```
 
-### OpenCode Can't Access Network
-
-**Check firewall status inside container:**
+### View Blocked Connections
 ```bash
-# Should show whitelisted IPs (IPv4)
-sudo ipset list allowed-domains
-
-# Should show whitelisted IPs (IPv6)
-sudo ipset list allowed-domains-v6
-
-# Test specific domain
-curl -I https://api.anthropic.com
-```
-
-If legitimate domain is blocked, add it to firewall config.
-
-### Audit Blocked Connection Attempts
-
-**View firewall logs to see blocked connections:**
-```bash
-# From host machine, view container logs
+# From host
 docker logs <container-name> 2>&1 | grep FIREWALL_BLOCK
 
-# Inside container (if syslog is available)
+# Inside container
 dmesg | grep FIREWALL_BLOCK
 ```
 
-This helps identify:
-- Attempted data exfiltration by agent
-- Legitimate domains that need whitelisting
-- Unexpected network behavior
-
-### Container Uses Too Much Disk Space
-
+### Check Firewall Status
 ```bash
-# Clean up unused containers/volumes
-docker system prune -a --volumes
-
-# Remove node_modules from volume (if needed)
-docker volume rm $(docker volume ls -q | grep node-modules)
+sudo ipset list allowed-domains        # IPv4
+sudo ipset list allowed-domains-v6     # IPv6
+curl -I https://api.anthropic.com      # Test access
 ```
-
-## 📊 Comparison to Other Approaches
-
-| Approach | Security | "Keep It Close" | Performance | ? |
-|----------|----------|-----------------|-------------|-------|
-| **Host Execution** | ❌ Critical Risk | ✅ Perfect | ✅ Native | ❌ No |
-| **Basic Docker** | ⚠️ Partial | ❌ Poor | ⚠️ OK | ❌ No |
-| **This DevContainer** | ✅ High | ✅ Good | ✅ Good | ✅ **YES** |
-| **Remote Micro-VM** | ✅ Maximum | ❌ None | ⚠️ Latency | ⚠️ Niche |
-
-## 📚 Architecture References
-
-**GitHub Repository:** https://github.com/develmusa/agent-devbox
-
-This configuration implements the architecture described in:
-
-> *"State-of-the-Art Architectures for Secure Agentic Coding: A Comprehensive Analysis of Isolation, Identity Bridging, and Autonomous Workflows"*
-
-**Key principles applied:**
-1. **Container Isolation** (Linux namespaces, cgroups)
-2. **Identity Bridging** (SSH agent forwarding, read-only config mounts)
-3. **Network Boundaries** (iptables egress filtering, ipset whitelisting)
-4. **Principle of Least Privilege** (non-root execution, minimal capabilities)
-
-## 🔍 Files Explained
-
-```
-.devcontainer/
-├── devcontainer.json          # Orchestrator (mounts, features, lifecycle)
-├── Dockerfile                 # Base image (minimal, secure)
-├── scripts/
-│   ├── init-firewall.sh      # Network security boundary (runs at startup)
-│   └── post-create.sh        # Smart dependency installer (runs once)
-├── README.md                  # This file (usage guide)
-└── SECURITY.md                # Threat model and security details
-```
-
-## 🤝 Contributing
-
-To improve this configuration:
-
-1. Test changes in a clean environment
-2. Verify security boundaries still work (firewall tests)
-3. Update documentation
-4. Consider backward compatibility
-
-## 📝 License
-
-This DevContainer configuration is provided as-is for development purposes.
-
-## 💡 Pro Tips
-
-- **Rebuild regularly**: `F1` → "Rebuild Container" picks up Dockerfile changes
-- **Check logs**: `F1` → "Show Container Log" to debug startup issues
-- **Volume cleanup**: Periodically prune Docker volumes to free disk space
-- **Git branches**: Use feature branches for risky agent experiments
-- **Version control**: Commit `.devcontainer/` to git so team shares config
 
 ---
 
-**Questions?** Check `SECURITY.md` for threat model details or open an issue.
+## Architecture Reference
 
-**Happy secure coding! 🚀🔒**
+Implements principles from:
+> *"State-of-the-Art Architectures for Secure Agentic Coding: A Comprehensive Analysis of Isolation, Identity Bridging, and Autonomous Workflows"*
+
+**Key principles:**
+- Container isolation (Linux namespaces, cgroups)
+- Identity bridging (SSH forwarding, read-only mounts)
+- Network boundaries (iptables egress filtering)
+- Least privilege (non-root execution, minimal capabilities)
+
+---
+
+## Files
+
+```
+.devcontainer/
+├── devcontainer.json    # Container configuration
+├── Dockerfile           # Base image (Node.js 20 + tools)
+├── scripts/
+│   ├── init-firewall.sh # Network security (runs at startup)
+│   └── post-create.sh   # Dependency installer (runs once)
+├── README.md            # This file
+└── SECURITY.md          # Threat model
+```
+
+---
+
+## License
+
+MIT © [develmusa](../LICENSE)

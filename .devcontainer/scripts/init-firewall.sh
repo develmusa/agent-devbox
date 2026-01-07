@@ -141,6 +141,7 @@ ALLOWED_DOMAINS=(
     # === AI Provider APIs ===
     "api.anthropic.com"                     # Claude (Anthropic)
     "api.openai.com"                        # ChatGPT/GPT-4 (OpenAI)
+    "openrouter.ai"                         # OpenRouter (AI API Gateway)
     "generativelanguage.googleapis.com"     # Gemini (Google)
     
     # === Package Registries ===

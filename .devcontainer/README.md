@@ -27,13 +27,46 @@ Security-hardened DevContainer for AI coding agents. Implements defense-in-depth
 
 **Prerequisites:**
 - Docker Desktop or Docker Engine
-- VS Code with Dev Containers extension
 - SSH agent running on host
+- One of: VS Code, DevPod, or Daytona
 
-**Setup:**
-1. Open project in VS Code
-2. `F1` → **Dev Containers: Reopen in Container**
-3. Wait for build (3-5 minutes first time)
+**VS Code:**
+```bash
+# Install: Dev Containers extension
+# F1 → "Dev Containers: Reopen in Container"
+```
+
+**DevPod:**
+```bash
+# Install: https://devpod.sh
+devpod up .
+devpod up . --ide nvim      # Or vscode, intellij, etc.
+devpod ssh .                # Access container
+```
+
+**Daytona:**
+```bash
+# Install: https://daytona.io
+daytona create .
+daytona code <workspace>    # Or ssh
+```
+
+---
+
+## Tool Comparison
+
+| Tool | Best For | Pros | Cons |
+|------|----------|------|------|
+| **VS Code** | Local development | Seamless integration, extensions | VS Code only |
+| **DevPod** | IDE flexibility | Any IDE, cloud backends | Extra tool install |
+| **Daytona** | Teams, cloud workspaces | Workspace management, prebuilds | More complex setup |
+
+**Choose:**
+- **VS Code** - Solo developer, VS Code user
+- **DevPod** - Use Neovim/JetBrains, need cloud backends
+- **Daytona** - Team with standardized environments
+
+All tools use the same `.devcontainer/` configuration.
 
 ---
 

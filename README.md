@@ -4,7 +4,7 @@
 [![DevContainer](https://img.shields.io/badge/DevContainer-enabled-blue.svg)](https://containers.dev/)
 [![Security: Hardened](https://img.shields.io/badge/Security-Hardened-green.svg)](#security)
 
-Security-hardened DevContainer for AI coding agents like OpenCode.
+Security-hardened DevContainer for AI coding agents. IDE-agnostic, works with VS Code, Neovim, JetBrains, and more.
 
 ## Features
 
@@ -17,10 +17,39 @@ Security-hardened DevContainer for AI coding agents like OpenCode.
 
 ## Quick Start
 
-1. Open repository in VS Code
-2. `F1` → **Dev Containers: Reopen in Container**
-3. Wait for build (3-5 minutes first time)
-4. Run `opencode` to start coding
+### VS Code
+```bash
+# F1 → "Dev Containers: Reopen in Container"
+```
+
+### DevPod
+```bash
+# Install: https://devpod.sh
+devpod up https://github.com/develmusa/agent-devbox
+
+# With specific IDE
+devpod up . --ide vscode
+devpod up . --ide nvim
+devpod up . --ide intellij
+```
+
+### Daytona
+```bash
+# Install: https://daytona.io
+daytona create https://github.com/develmusa/agent-devbox
+```
+
+## IDE Support
+
+| IDE | Support | Notes |
+|-----|---------|-------|
+| **VS Code** | ✅ Full | Extensions included |
+| **Neovim** | ✅ Pre-installed | Bring your config |
+| **Vim** | ✅ Pre-installed | Classic vim |
+| **JetBrains** | ✅ Via DevPod/Daytona | IntelliJ, WebStorm, etc. |
+| **Any terminal editor** | ✅ SSH access | Use any CLI tool |
+
+VS Code extensions are optional. Other IDEs ignore VS Code-specific configuration.
 
 ## Security
 
@@ -35,7 +64,7 @@ See [SECURITY.md](.devcontainer/SECURITY.md) for threat model.
 
 ## Documentation
 
-- **[Setup Guide](.devcontainer/README.md)** - Full configuration details
+- **[Setup Guide](.devcontainer/README.md)** - Configuration and customization
 - **[Security Architecture](.devcontainer/SECURITY.md)** - Threat model and mitigations
 
 ## Customization

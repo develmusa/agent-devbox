@@ -48,9 +48,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     # Agent-friendly search tools (CRITICAL for OpenCode context gathering)
     ripgrep \
     fd-find \
-    # Basic utilities
+    # Editors (DevPod, Daytona, terminal workflows)
+    neovim \
     vim \
     nano \
+    # Terminal utilities
+    tmux \
     less \
     sudo \
     procps \

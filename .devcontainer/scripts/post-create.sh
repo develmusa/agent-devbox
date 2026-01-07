@@ -192,6 +192,10 @@ echo "  • Working directory: ${PWD}"
 echo "  • Node.js: $(node --version 2>/dev/null || echo 'not installed')"
 echo "  • npm: $(npm --version 2>/dev/null || echo 'not installed')"
 
+if command -v nvim &> /dev/null; then
+    echo "  • Neovim: $(nvim --version 2>&1 | head -1 | cut -d' ' -f2)"
+fi
+
 if command -v python3 &> /dev/null; then
     echo "  • Python: $(python3 --version 2>&1 | cut -d' ' -f2)"
 fi

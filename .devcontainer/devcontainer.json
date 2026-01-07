@@ -1,0 +1,221 @@
+{
+  // =============================================================================
+  //  agent-devbox Configuration
+  // =============================================================================
+  // Architecture: Containerized Identity-Bridged Sandbox
+  // Security: SSH Agent Forwarding, Network Egress Filtering, Non-Root Execution
+  // Purpose: Secure environment for AI coding agents
+  // Repository: https://github.com/develmusa/agent-devbox
+  // =============================================================================
+  
+  "name": "agent-devbox",
+  
+  // =============================================================================
+  // BUILD CONFIGURATION
+  // =============================================================================
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": ".",
+    "args": {
+      // Map container user to host UID/GID (prevents file permission issues)
+      "NODE_USER_UID": "1000",
+      "NODE_USER_GID": "1000",
+      "OPENCODE_VERSION": "latest"
+    }
+  },
+  
+  // =============================================================================
+  // SECURITY: Network Capabilities
+  // =============================================================================
+  // Grant NET_ADMIN capability ONLY for iptables firewall management
+  // This is the minimum required for network egress filtering
+  "capAdd": ["NET_ADMIN"],
+  
+  // Run container with minimal privileges (no other security compromises)
+  // Resource limits prevent fork bombs, memory exhaustion, and DoS attacks
+  "runArgs": [
+    "--cap-add=NET_ADMIN",
+    "--memory=4g",              // Limit memory to 4GB
+    "--memory-swap=4g",         // No swap (prevent disk thrashing)
+    "--cpus=2",                 // Limit to 2 CPU cores
+    "--pids-limit=512",         // Limit processes (prevent fork bombs)
+    "--ulimit=nofile=1024:4096" // Limit open file descriptors
+  ],
+  
+  // =============================================================================
+  // IDENTITY BRIDGING: SSH Agent Forwarding (Gold Standard)
+  // =============================================================================
+  // Uses DevContainer feature to automatically forward SSH agent socket
+  // Benefits:
+  // - Private keys NEVER copied into container
+  // - Git operations use host's SSH agent for signing
+  // - Works cross-platform (Mac/Windows/Linux)
+  "features": {
+    "ghcr.io/devcontainers/features/sshd:1": {
+      "version": "latest"
+    },
+    "ghcr.io/devcontainers/features/github-cli:1": {
+      "version": "latest"
+    }
+  },
+  
+  // =============================================================================
+  // CONFIGURATION MOUNTS: "Keep It Close"
+  // =============================================================================
+  // Strategy: Read-only bind mounts for configs, volumes for state
+  "mounts": [
+    // Git configuration (read-only to prevent agent modification)
+    "source=${localEnv:HOME}${localEnv:USERPROFILE}/.gitconfig,target=/home/node/.gitconfig,type=bind,readonly",
+    
+    // OpenCode state persistence (isolated from host filesystem)
+    "source=opencode-config-${devcontainerId},target=/home/node/.local/share/opencode,type=volume",
+    "source=opencode-cache-${devcontainerId},target=/home/node/.config/opencode,type=volume",
+    
+    // Bash history persistence
+    "source=bash-history-${devcontainerId},target=/commandhistory,type=volume",
+    
+    // Node modules cache (performance optimization, especially on Mac/Windows)
+    "source=node-modules-${devcontainerId},target=${containerWorkspaceFolder}/node_modules,type=volume"
+  ],
+  
+  // =============================================================================
+  // VS CODE CUSTOMIZATIONS
+  // =============================================================================
+  "customizations": {
+    "vscode": {
+      // Minimal extension set (examples - uncomment as needed)
+      "extensions": [
+        // Core productivity
+        "eamodio.gitlens",              // Git visualization and history
+        "usernamehw.errorlens"          // Inline error/warning display
+        
+        // Language Support (uncomment as needed)
+        // "dbaeumer.vscode-eslint",    // JavaScript/TypeScript linting
+        // "esbenp.prettier-vscode",    // Code formatting
+        // "ms-python.python",          // Python language support
+        // "ms-python.black-formatter", // Python formatting
+        // "golang.go",                 // Go language support
+        // "rust-lang.rust-analyzer"    // Rust language support
+      ],
+      
+      // Editor settings optimized for AI agents
+      "settings": {
+        // Auto-formatting
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+          "source.fixAll": "explicit",
+          "source.organizeImports": "explicit"
+        },
+        
+        // Enable inline suggestions for agent assistance
+        "editor.inlineSuggest.enabled": true,
+        "editor.quickSuggestions": {
+          "strings": true,
+          "comments": true,
+          "other": true
+        },
+        
+        // Terminal configuration
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "terminal.integrated.profiles.linux": {
+          "bash": {
+            "path": "/bin/bash",
+            "icon": "terminal-bash"
+          }
+        },
+        
+        // Git configuration
+        "git.autofetch": true,
+        "git.enableSmartCommit": true,
+        "git.confirmSync": false,
+        
+        // Error detection
+        "errorLens.enabled": true,
+        "errorLens.enabledDiagnosticLevels": ["error", "warning"],
+        
+        // File watching (exclude heavy directories)
+        "files.watcherExclude": {
+          "**/.git/objects/**": true,
+          "**/.git/subtree-cache/**": true,
+          "**/node_modules/*/**": true,
+          "**/.hg/store/**": true,
+          "**/__pycache__/**": true,
+          "**/.pytest_cache/**": true,
+          "**/venv/**": true,
+          "**/.venv/**": true,
+          "**/target/**": true,
+          "**/dist/**": true,
+          "**/build/**": true
+        }
+      }
+    }
+  },
+  
+  // =============================================================================
+  // NETWORK CONFIGURATION
+  // =============================================================================
+  // Port forwarding for common development services
+  "forwardPorts": [3000, 5000, 8000, 8080, 9000],
+  "portsAttributes": {
+    "3000": {
+      "label": "Frontend/OpenCode Server",
+      "onAutoForward": "notify"
+    },
+    "5000": {
+      "label": "Backend API",
+      "onAutoForward": "notify"
+    },
+    "8000": {
+      "label": "Development Server",
+      "onAutoForward": "notify"
+    }
+  },
+  
+  // =============================================================================
+  // LIFECYCLE SCRIPTS
+  // =============================================================================
+  // Execute firewall IMMEDIATELY after container starts (before any network access)
+  "postStartCommand": "sudo /usr/local/bin/init-firewall.sh",
+  
+  // Smart dependency detection and installation
+  "postCreateCommand": "bash .devcontainer/scripts/post-create.sh",
+  
+  // Git safe directory configuration
+  "postAttachCommand": "git config --global --add safe.directory ${containerWorkspaceFolder}",
+  
+  // =============================================================================
+  // ENVIRONMENT VARIABLES
+  // =============================================================================
+  "remoteEnv": {
+    // Development mode
+    "NODE_ENV": "development",
+    "PYTHONUNBUFFERED": "1",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    
+    // Force color output in CI/Agent tools
+    "FORCE_COLOR": "1",
+    "TERM": "xterm-256color",
+    
+    // OpenCode configuration
+    "OPENCODE_TELEMETRY": "false"
+  },
+  
+  // =============================================================================
+  // USER & WORKSPACE CONFIGURATION
+  // =============================================================================
+  // Run as non-root user (security best practice)
+  "remoteUser": "node",
+  
+  // Update user UID to match host (prevents permission issues)
+  "updateRemoteUserUID": true,
+  
+  // Workspace location inside container
+  "workspaceFolder": "/workspace",
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached",
+  
+  // Container lifecycle
+  "shutdownAction": "stopContainer",
+  
+  // Wait for firewall to initialize before allowing user interaction
+  "waitFor": "postStartCommand"
+}

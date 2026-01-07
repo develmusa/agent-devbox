@@ -107,29 +107,58 @@ ipset create allowed-domains-v6 hash:net family inet6 2>/dev/null || true
 # =============================================================================
 echo "Fetching GitHub IP ranges from official API..."
 
-gh_ranges=$(curl -s https://api.github.com/meta)
+# Hardcoded fallback GitHub ranges (updated 2026-01)
+GITHUB_FALLBACK_RANGES=(
+    "140.82.112.0/20"
+    "143.55.64.0/20"
+    "185.199.108.0/22"
+    "192.30.252.0/22"
+    "20.27.177.113/32"
+    "20.201.28.151/32"
+    "20.205.243.166/32"
+)
 
-if [ -z "$gh_ranges" ]; then
-    echo "ERROR: Failed to fetch GitHub IP ranges"
-    exit 1
-fi
+# Retry logic for GitHub API fetch
+RETRY_COUNT=0
+MAX_RETRIES=3
+gh_ranges=""
 
-if ! echo "$gh_ranges" | jq -e '.web and .api and .git' >/dev/null 2>&1; then
-    echo "ERROR: GitHub API response missing required fields"
-    exit 1
-fi
-
-# Extract and aggregate GitHub IP ranges (reduces number of rules)
-echo "Processing GitHub IP ranges..."
-while IFS= read -r cidr; do
-    # Validate CIDR format
-    if [[ ! "$cidr" =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}/[0-9]{1,2}$ ]]; then
-        echo "WARNING: Invalid CIDR from GitHub: $cidr (skipping)"
-        continue
+while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
+    echo "  Attempt $((RETRY_COUNT + 1))/$MAX_RETRIES..."
+    gh_ranges=$(curl -s --connect-timeout 5 --max-time 10 https://api.github.com/meta 2>/dev/null || true)
+    
+    if [ -n "$gh_ranges" ] && echo "$gh_ranges" | jq -e '.web and .api and .git' >/dev/null 2>&1; then
+        echo "  ✓ Successfully fetched GitHub IP ranges from API"
+        break
     fi
-    echo "  ✓ Adding GitHub range: $cidr"
-    ipset add allowed-domains "$cidr"
-done < <(echo "$gh_ranges" | jq -r '(.web + .api + .git)[]' | sort -u)
+    
+    RETRY_COUNT=$((RETRY_COUNT + 1))
+    if [ $RETRY_COUNT -lt $MAX_RETRIES ]; then
+        echo "  ⚠ Retry in 2 seconds..."
+        sleep 2
+    fi
+done
+
+# Process GitHub ranges (from API or fallback)
+if [ -n "$gh_ranges" ] && echo "$gh_ranges" | jq -e '.web' >/dev/null 2>&1; then
+    echo "Processing GitHub IP ranges from API..."
+    while IFS= read -r cidr; do
+        # Validate CIDR format
+        if [[ ! "$cidr" =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}/[0-9]{1,2}$ ]]; then
+            echo "  ⚠ Invalid CIDR from GitHub: $cidr (skipping)"
+            continue
+        fi
+        echo "  ✓ Adding GitHub range: $cidr"
+        ipset add allowed-domains "$cidr" 2>/dev/null || true
+    done < <(echo "$gh_ranges" | jq -r '(.web + .api + .git)[]' | sort -u)
+else
+    echo "⚠️  WARNING: Could not fetch GitHub IP ranges after $MAX_RETRIES attempts"
+    echo "    Using fallback IP ranges (may be outdated - rebuild to retry)"
+    for cidr in "${GITHUB_FALLBACK_RANGES[@]}"; do
+        echo "  ✓ Adding fallback GitHub range: $cidr"
+        ipset add allowed-domains "$cidr" 2>/dev/null || true
+    done
+fi
 
 # =============================================================================
 # STEP 7: Resolve and Whitelist Trusted Domains

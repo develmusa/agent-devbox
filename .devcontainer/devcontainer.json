@@ -64,8 +64,8 @@
   // =============================================================================
   // Strategy: Read-only bind mounts for configs, volumes for state
   "mounts": [
-    // Git configuration (read-only to prevent agent modification)
-    "source=${localEnv:HOME}${localEnv:USERPROFILE}/.gitconfig,target=/home/node/.gitconfig,type=bind,readonly",
+    // Git configuration (allow write for safe.directory and other settings)
+    "source=${localEnv:HOME}${localEnv:USERPROFILE}/.gitconfig,target=/home/node/.gitconfig,type=bind",
     
     // OpenCode state persistence (isolated from host filesystem)
     "source=opencode-config-${devcontainerId},target=/home/node/.local/share/opencode,type=volume",
@@ -177,11 +177,8 @@
   // Execute firewall IMMEDIATELY after container starts (before any network access)
   "postStartCommand": "sudo -n /usr/local/bin/init-firewall.sh",
   
-  // Smart dependency detection and installation
+  // Smart dependency detection and installation (also configures git safe.directory)
   "postCreateCommand": "bash .devcontainer/scripts/post-create.sh",
-  
-  // Git safe directory configuration
-  "postAttachCommand": "git config --global --add safe.directory ${containerWorkspaceFolder}",
   
   // =============================================================================
   // ENVIRONMENT VARIABLES

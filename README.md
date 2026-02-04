@@ -43,7 +43,7 @@ devpod up . --ide intellij
 | **VS Code** | ✅ Full | Extensions included |
 | **Neovim** | ✅ Pre-installed | Bring your config |
 | **Vim** | ✅ Pre-installed | Classic vim |
-| **JetBrains** | ✅ Via DevPod/Daytona | IntelliJ, WebStorm, etc. |
+| **JetBrains** | ✅ Via DevPod | IntelliJ, WebStorm, etc. |
 | **Any terminal editor** | ✅ SSH access | Use any CLI tool |
 
 VS Code extensions are optional. Other IDEs ignore VS Code-specific configuration.
@@ -56,14 +56,6 @@ Implements defense-in-depth architecture:
 - Identity bridging (SSH agent forwarding)
 - Non-root execution
 - Resource constraints
-
-## Documentation
-
-📖 **Live Docs**: https://develmusa.github.io/agent-devbox
-
-- **[Getting Started](https://develmusa.github.io/agent-devbox/getting-started/)** - Quick start guide
-- **[Customizing](https://develmusa.github.io/agent-devbox/customizing/)** - Configuration options
-- **[Security](https://develmusa.github.io/agent-devbox/security/)** - Threat model and mitigations
 
 ## Customization
 

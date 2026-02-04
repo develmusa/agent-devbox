@@ -48,7 +48,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     # Agent-friendly search tools (CRITICAL for OpenCode context gathering)
     ripgrep \
     fd-find \
-    # Editors (DevPod, Daytona, terminal workflows)
+    # Editors (DevPod, terminal workflows)
     neovim \
     vim \
     nano \

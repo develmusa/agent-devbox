@@ -36,12 +36,6 @@ devpod up . --ide nvim
 devpod up . --ide intellij
 ```
 
-### Daytona
-```bash
-# Install: https://daytona.io
-daytona create https://github.com/develmusa/agent-devbox
-```
-
 ## IDE Support
 
 | IDE | Support | Notes |
@@ -63,8 +57,6 @@ Implements defense-in-depth architecture:
 - Non-root execution
 - Resource constraints
 
-See [SECURITY.md](.devcontainer/SECURITY.md) for threat model.
-
 ## Documentation
 
 📖 **Live Docs**: https://develmusa.github.io/agent-devbox
@@ -72,12 +64,10 @@ See [SECURITY.md](.devcontainer/SECURITY.md) for threat model.
 - **[Getting Started](https://develmusa.github.io/agent-devbox/getting-started/)** - Quick start guide
 - **[Customizing](https://develmusa.github.io/agent-devbox/customizing/)** - Configuration options
 - **[Security](https://develmusa.github.io/agent-devbox/security/)** - Threat model and mitigations
-- **[Setup Guide](.devcontainer/README.md)** - DevContainer configuration
 
 ## Customization
 
 Extend for additional languages or AI agents:
-- Uncomment language sections in `.devcontainer/Dockerfile`
 - Add domains to firewall whitelist in `scripts/init-firewall.sh`
 - Modify resource limits in `devcontainer.json`
 

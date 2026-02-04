@@ -258,6 +258,11 @@ ALLOWED_DOMAINS=(
     "update.code.visualstudio.com"
     "*.vo.msecnd.net"
     
+    # === Documentation Build Tools (Astro/Starlight + Sharp) ===
+    "github.com"                            # Sharp binary downloads from GitHub releases
+    "objects.githubusercontent.com"         # GitHub LFS and release artifacts
+    "raw.githubusercontent.com"             # Raw GitHub content
+    
     # === Monitoring & Telemetry (Optional - comment out for stricter security) ===
     "sentry.io"
 )

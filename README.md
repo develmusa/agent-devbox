@@ -3,6 +3,9 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![DevContainer](https://img.shields.io/badge/DevContainer-enabled-blue.svg)](https://containers.dev/)
 [![Security: Hardened](https://img.shields.io/badge/Security-Hardened-green.svg)](#security)
+[![Documentation](https://img.shields.io/badge/Docs-online-blue.svg)](https://develmusa.github.io/agent-devbox)
+
+> 📚 **Full Documentation**: https://develmusa.github.io/agent-devbox
 
 Security-hardened DevContainer for AI coding agents. IDE-agnostic, works with VS Code, Neovim, JetBrains, and more.
 
@@ -64,8 +67,12 @@ See [SECURITY.md](.devcontainer/SECURITY.md) for threat model.
 
 ## Documentation
 
-- **[Setup Guide](.devcontainer/README.md)** - Configuration and customization
-- **[Security Architecture](.devcontainer/SECURITY.md)** - Threat model and mitigations
+📖 **Live Docs**: https://develmusa.github.io/agent-devbox
+
+- **[Getting Started](https://develmusa.github.io/agent-devbox/getting-started/)** - Quick start guide
+- **[Customizing](https://develmusa.github.io/agent-devbox/customizing/)** - Configuration options
+- **[Security](https://develmusa.github.io/agent-devbox/security/)** - Threat model and mitigations
+- **[Setup Guide](.devcontainer/README.md)** - DevContainer configuration
 
 ## Customization
 

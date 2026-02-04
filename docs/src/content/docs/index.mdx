@@ -1,0 +1,40 @@
+---
+title: Agent Devbox
+description: Security-hardened DevContainer for AI coding agents
+template: splash
+hero:
+  tagline: Security-hardened DevContainer for AI coding agents. IDE-agnostic, works with VS Code, Neovim, JetBrains, and more.
+  actions:
+    - text: Get Started
+      link: /getting-started/
+      icon: right-arrow
+      variant: primary
+    - text: Security Overview
+      link: /security/
+      icon: document
+---
+
+import { Card, CardGrid } from '@astrojs/starlight/components';
+
+## Features
+
+<CardGrid stagger>
+	<Card title="Network Egress Filtering" icon="seti:lock">
+		IPv4/IPv6 firewall blocks unauthorized access. Only whitelisted domains allowed.
+	</Card>
+	<Card title="SSH Agent Forwarding" icon="seti:key">
+		Private keys never enter the container. Identity bridging keeps credentials safe.
+	</Card>
+	<Card title="Resource Limits" icon="seti:config">
+		4GB RAM, 2 CPU cores, fork bomb protection. Limits blast radius.
+	</Card>
+	<Card title="Multi-Language Support" icon="seti:javascript">
+		Node.js, Python, Go, Rust. Auto-detects dependencies and installs them.
+	</Card>
+	<Card title="IDE Agnostic" icon="seti:vs_code">
+		VS Code, Neovim, JetBrains, any terminal editor. Your choice.
+	</Card>
+	<Card title="OpenCode Ready" icon="seti:ai">
+		Pre-installed and configured. Start coding with AI immediately.
+	</Card>
+</CardGrid>

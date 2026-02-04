@@ -1,0 +1,194 @@
+/* Custom styles for Agent Devbox documentation */
+
+/*
+ * Refined Color Palette - Clean Modern Dark/Light Theme
+ * ------------------------------------------------------
+ * Dark Background: #1e1e2e (deep blue-gray)
+ * Dark Surface: #313244 (elevated surfaces)
+ * Dark Foreground: #cdd6f4 (crisp light text)
+ * Light Background: #fafafa (clean white)
+ * Light Surface: #ffffff
+ * Light Foreground: #1a1a2e (deep navy)
+ * Primary Accent: #89b4fa (soft blue)
+ * Secondary Accent: #a6e3a1 (soft green)
+ * Code Red: #f38ba8
+ * Code Yellow: #f9e2af
+ * Code Green: #a6e3a1
+ * Code Blue: #89b4fa
+ * Code Purple: #cba6f7
+ */
+
+/* Dark mode - Clean Modern Dark */
+[data-theme='dark'] {
+  /* Background colors */
+  --sl-color-bg: #1e1e2e;
+  --sl-color-bg-nav: #181825;
+  --sl-color-bg-sidebar: #181825;
+  --sl-color-bg-inline-code: #313244;
+  --sl-color-bg-accent: #89b4fa;
+
+  /* Text colors - improved contrast */
+  --sl-color-text: #cdd6f4;
+  --sl-color-text-accent: #1e1e2e;
+
+  /* Accent colors */
+  --sl-color-accent: #89b4fa;
+  --sl-color-accent-high: #b4befe;
+  --sl-color-accent-low: #45475a;
+
+  /* Gray scale - cleaner neutrals */
+  --sl-color-gray-1: #cdd6f4;
+  --sl-color-gray-2: #bac2de;
+  --sl-color-gray-3: #a6adc8;
+  --sl-color-gray-4: #585b70;
+  --sl-color-gray-5: #45475a;
+  --sl-color-gray-6: #313244;
+  --sl-color-gray-7: #1e1e2e;
+
+  /* Custom properties for links and interactive elements */
+  --sl-link-color: #89b4fa;
+  --sl-link-hover-color: #b4befe;
+  --sl-code-text: #f38ba8;
+}
+
+/* Light mode - Clean Modern Light */
+[data-theme='light'] {
+  /* Background colors */
+  --sl-color-bg: #fafafa;
+  --sl-color-bg-nav: #ffffff;
+  --sl-color-bg-sidebar: #ffffff;
+  --sl-color-bg-inline-code: #f0f0f5;
+  --sl-color-bg-accent: #1e66f5;
+
+  /* Text colors */
+  --sl-color-text: #1a1a2e;
+  --sl-color-text-accent: #ffffff;
+
+  /* Accent colors */
+  --sl-color-accent: #1e66f5;
+  --sl-color-accent-high: #0041c9;
+  --sl-color-accent-low: #e8effd;
+
+  /* Gray scale */
+  --sl-color-gray-1: #1a1a2e;
+  --sl-color-gray-2: #4c4f69;
+  --sl-color-gray-3: #6c6f85;
+  --sl-color-gray-4: #8c8fa1;
+  --sl-color-gray-5: #bcc0cc;
+  --sl-color-gray-6: #e8ecf0;
+  --sl-color-gray-7: #fafafa;
+
+  /* Custom properties */
+  --sl-link-color: #1e66f5;
+  --sl-link-hover-color: #0041c9;
+  --sl-code-text: #d20f39;
+}
+
+/* Link styling improvements */
+[data-theme='dark'] a,
+[data-theme='light'] a {
+  color: var(--sl-link-color);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+[data-theme='dark'] a:hover,
+[data-theme='light'] a:hover {
+  color: var(--sl-link-hover-color);
+  text-decoration: underline;
+}
+
+/* Strong/bold text improvements */
+[data-theme='dark'] strong {
+  color: #f5c2e7;
+  font-weight: 600;
+}
+
+[data-theme='light'] strong {
+  color: #8839ef;
+  font-weight: 600;
+}
+
+/* Table styling improvements */
+[data-theme='dark'] table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+[data-theme='dark'] th {
+  background-color: #313244;
+  color: #cdd6f4;
+  font-weight: 600;
+  border-bottom: 2px solid #45475a;
+}
+
+[data-theme='dark'] td {
+  border-bottom: 1px solid #313244;
+}
+
+[data-theme='dark'] tr:hover {
+  background-color: rgba(137, 180, 250, 0.1);
+}
+
+[data-theme='light'] table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+[data-theme='light'] th {
+  background-color: #f0f0f5;
+  color: #1a1a2e;
+  font-weight: 600;
+  border-bottom: 2px solid #bcc0cc;
+}
+
+[data-theme='light'] td {
+  border-bottom: 1px solid #e8ecf0;
+}
+
+[data-theme='light'] tr:hover {
+  background-color: rgba(30, 102, 245, 0.05);
+}
+
+/* Inline code styling */
+[data-theme='dark'] code:not(pre code) {
+  background-color: #313244;
+  color: #f38ba8;
+  padding: 0.2em 0.4em;
+  border-radius: 4px;
+  font-size: 0.9em;
+}
+
+[data-theme='light'] code:not(pre code) {
+  background-color: #f0f0f5;
+  color: #d20f39;
+  padding: 0.2em 0.4em;
+  border-radius: 4px;
+  font-size: 0.9em;
+}
+
+/* Blockquote styling */
+[data-theme='dark'] blockquote {
+  border-left: 4px solid #89b4fa;
+  background-color: rgba(137, 180, 250, 0.1);
+  padding: 1rem;
+  margin: 1rem 0;
+  border-radius: 0 8px 8px 0;
+}
+
+[data-theme='light'] blockquote {
+  border-left: 4px solid #1e66f5;
+  background-color: rgba(30, 102, 245, 0.05);
+  padding: 1rem;
+  margin: 1rem 0;
+  border-radius: 0 8px 8px 0;
+}
+
+/* List item improvements */
+[data-theme='dark'] li::marker {
+  color: #89b4fa;
+}
+
+[data-theme='light'] li::marker {
+  color: #1e66f5;
+}

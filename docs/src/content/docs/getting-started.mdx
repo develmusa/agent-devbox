@@ -1,0 +1,121 @@
+---
+title: Getting Started
+description: Quick start guide for Agent Devbox
+---
+
+Get up and running with Agent Devbox in minutes.
+
+## Prerequisites
+
+- Docker Desktop or Docker Engine
+- SSH agent running on host
+- One of: VS Code, DevPod, or Daytona
+
+## Quick Start
+
+### VS Code
+
+1. Install the **Dev Containers** extension
+2. Open the project in VS Code
+3. Press `F1` → "Dev Containers: Reopen in Container"
+
+### DevPod
+
+```bash
+# Install: https://devpod.sh
+devpod up .
+
+# With specific IDE
+devpod up . --ide nvim      # Neovim
+devpod up . --ide vscode    # VS Code
+devpod up . --ide intellij  # JetBrains
+```
+
+### Daytona
+
+```bash
+# Install: https://daytona.io
+daytona create .
+daytona code <workspace>
+```
+
+## Tool Comparison
+
+| Tool | Best For | Pros | Cons |
+|------|----------|------|------|
+| **VS Code** | Local development | Seamless integration, extensions | VS Code only |
+| **DevPod** | IDE flexibility | Any IDE, cloud backends | Extra tool install |
+| **Daytona** | Teams | Workspace management | More complex setup |
+
+**Choose:**
+- **VS Code** — Solo developer, VS Code user
+- **DevPod** — Use Neovim/JetBrains, need cloud backends
+- **Daytona** — Team with standardized environments
+
+## Verify Installation
+
+Test the firewall is working:
+
+```bash
+# Should FAIL (blocked domain)
+curl --connect-timeout 3 https://example.com
+
+# Should SUCCEED (allowed domain)
+curl --connect-timeout 5 https://api.github.com
+```
+
+Run OpenCode:
+
+```bash
+opencode
+```
+
+## Next Steps
+
+- [Customize for your needs](/customizing/)
+- [Learn about security](/security/)
+- [View troubleshooting tips](/getting-started/#troubleshooting)
+
+## Troubleshooting
+
+### Container Won't Build
+
+```bash
+docker system prune -a
+# F1 → "Dev Containers: Rebuild Container Without Cache"
+```
+
+### SSH Agent Not Working
+
+**Mac/Linux:**
+```bash
+ssh-add -l                    # Verify agent
+eval $(ssh-agent)             # Start if needed
+ssh-add ~/.ssh/id_rsa
+```
+
+**Windows:**
+```powershell
+Start-Service ssh-agent
+ssh-add
+```
+
+### Permission Issues
+
+Check your UID/GID matches the container:
+
+```bash
+id -u  # Should be 1000
+id -g  # Should be 1000
+```
+
+If different, update `devcontainer.json`:
+
+```json
+"build": {
+  "args": {
+    "NODE_USER_UID": "1000",
+    "NODE_USER_GID": "1000"
+  }
+}
+```
